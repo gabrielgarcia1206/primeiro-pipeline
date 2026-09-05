@@ -27,7 +27,6 @@ jobs:
 
 
   deploy:
-    needs: teste
     runs-on: ubuntu-latest
 
     steps:
