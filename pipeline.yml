@@ -1,0 +1,36 @@
+name: Primeira Pipeline
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    teste:
+        strategy:
+          matrix:
+            # 3 sistemas operacionais padrões do GitHub Actions
+            os: [ubuntu-latest, windows-latest, macos-latest]
+            python-version: ['3.10', '3.11', '3.12']
+        
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - name: Baixar Código do Repositório
+              uses: actions/checkout@v4
+            
+            - name: Configurar Python
+              uses: actions/setup-python@v5
+
+              with:
+                python-version: ${{ matrix.python-version }}
+                cache: 'pip'
+            - name: Executar Testes
+              run: python --version
+            
+    deploy:
+        needs: teste
+        runs-on: ubuntu-latest
+    
+        steps:
+            - name: Finalizar Deploy
+              run: echo "Deploy Realizado"
