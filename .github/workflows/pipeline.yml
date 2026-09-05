@@ -24,8 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      - name: Executar Testes
-        run: python --version
+
 
   deploy:
     needs: teste
