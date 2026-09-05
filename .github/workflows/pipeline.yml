@@ -1,27 +1,59 @@
-teste:
-  strategy:
-    fail-fast: false
-    matrix:
-      os: [ubuntu-latest, windows-latest, macos-latest]
-      python-version: ['3.10', '3.11', '3.12']
+name: Primeira Pipeline
 
-  runs-on: ${{ matrix.os }}
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
-  steps:
-    - name: Baixar Código do Repositório
-      uses: actions/checkout@v4
+jobs:
+  sonarqube:
+    name: SonarQube
+    runs-on: windows-latest
 
-    - name: Configurar Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-        cache-dependency-path: requirements.txt
+    steps:
+      - name: Baixar Código do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Instalar Dependências
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Executar soma.py
-      run: python soma.py
+  teste:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Baixar Código do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instalar Dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Executar soma.py
+        run: python soma.py
+
+  deploy:
+    needs: teste
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Finalizar Deploy
+        run: echo "Deploy Realizado"
